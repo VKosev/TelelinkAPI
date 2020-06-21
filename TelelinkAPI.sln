@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30204.135
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelelinkAPI", "TelelinkAPI\TelelinkAPI.csproj", "{ED0628DA-0475-4AE3-A5ED-8BED34B7E9FC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ED0628DA-0475-4AE3-A5ED-8BED34B7E9FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED0628DA-0475-4AE3-A5ED-8BED34B7E9FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED0628DA-0475-4AE3-A5ED-8BED34B7E9FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED0628DA-0475-4AE3-A5ED-8BED34B7E9FC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {91E98383-B4D7-407E-9B17-BE97EBB464F2}
+	EndGlobalSection
+EndGlobal
