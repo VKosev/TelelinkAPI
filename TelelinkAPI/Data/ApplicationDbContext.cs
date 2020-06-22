@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace TelelinkAPI.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Role, int>
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, int>
     {
         public DbSet<Owner> Owners { get; set; }
 
@@ -34,7 +34,7 @@ namespace TelelinkAPI.Data
                 .WithMany(o => o.Owners)
                 .HasForeignKey(om => om.ModelId);
 
-            // Make Owner & Model fields unique
+            // Make Owner & Model name fields unique
             modelBuilder.Entity<Owner>()
                 .HasIndex(o => o.Name)
                 .IsUnique();

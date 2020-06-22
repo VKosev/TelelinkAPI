@@ -17,29 +17,36 @@ namespace TelelinkAPI.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly UserManager<ApplicationUser> userManager;
-        private readonly SignInManager<ApplicationUser> signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
+        private readonly ApplicationDbContext _context;
 
-        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public AccountController(UserManager<ApplicationUser> userManager,
+                                 SignInManager<ApplicationUser> signInManager,
+                                 RoleManager<ApplicationRole> roleManager,
+                                 ApplicationDbContext context)
         {
-            this.userManager = userManager;
-            this.signInManager = signInManager;
+            this._userManager = userManager;
+            this._signInManager = signInManager;
+            this._roleManager = roleManager;
+            this._context = context;
         }
 
         [HttpPost]
-        public async Task<ActionResult<string>> Register([FromBody] POCOUser pocoUser)
+        public async Task<IActionResult> Register([FromBody] POCOUser pocoUser) // POCOUser is used to get the password from JSON.
         {
 
             ApplicationUser appUser = new ApplicationUser
-                            {       
-                                UserName = pocoUser.UserName,
-                                Email = pocoUser.Email,
-                                Owner = pocoUser.Owner
-                            };
+            {
+                UserName = pocoUser.UserName,
+                Email = pocoUser.Email,
+                Owner = pocoUser.Owner
+            };
 
-            IdentityResult result = await userManager.CreateAsync(appUser, pocoUser.Password);
+            IdentityResult result = await _userManager.CreateAsync(appUser, pocoUser.Password);
 
-            return Ok(result.Errors);   
+            return Ok(result.Errors);
         }
 
         [HttpGet]
@@ -47,6 +54,24 @@ namespace TelelinkAPI.Controllers
         {
             var a = 1;
             return Ok(a);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddRole(ApplicationRole appRole)
+        {
+
+            var roleExists = await _roleManager.RoleExistsAsync(appRole.Name);
+
+            if (!roleExists)
+            {
+                IdentityResult result = await _roleManager.CreateAsync(appRole);
+                return Ok(result.Succeeded);
+            }
+            else
+            {
+                return BadRequest("Failed to add Roles");
+            }
+
         }
     }
 }

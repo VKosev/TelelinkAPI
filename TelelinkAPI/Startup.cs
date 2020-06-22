@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using TelelinkAPI.Data;
 using Microsoft.EntityFrameworkCore;
 using TelelinkAPI.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace TelelinkAPI
 {
@@ -28,17 +29,21 @@ namespace TelelinkAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddIdentity<ApplicationUser, Role>(options =>
+            services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
             {
-                options.User.RequireUniqueEmail = true;
+                options.User.RequireUniqueEmail = false;
 
                 options.Password.RequiredLength = 4;
                 options.Password.RequireDigit = false;
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequireUppercase = false;
+
             }).AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddDbContext<ApplicationDbContext>(option => option.UseSqlServer(Configuration.GetConnectionString("MSSqlServerContext")));
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options => Configuration.Bind("JwtSettings", options));
 
             services.AddControllers();
         }
@@ -50,7 +55,7 @@ namespace TelelinkAPI
             {
                 app.UseDeveloperExceptionPage();
             }
-
+         
             app.UseHttpsRedirection();
 
             app.UseRouting();

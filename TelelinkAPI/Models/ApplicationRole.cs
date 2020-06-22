@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TelelinkAPI.Models
 {
-    public class Role : IdentityRole<int>
+    public class ApplicationRole : IdentityRole<int>
     {
     }
 }
