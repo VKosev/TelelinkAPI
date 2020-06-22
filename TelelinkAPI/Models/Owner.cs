@@ -17,7 +17,7 @@ namespace TelelinkAPI.Models
         [Required]
 
         public int userId { get; set; }
-        public User user { get; set; }
+        public ApplicationUser user { get; set; }
 
         public ICollection<OwnerModel> Models { get; set; }
     }

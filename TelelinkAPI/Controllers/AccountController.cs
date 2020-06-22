@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TelelinkAPI.Data;
 using TelelinkAPI.Models;
+using TelelinkAPI.POCOs;
 
 namespace TelelinkAPI.Controllers
 {
@@ -14,37 +17,33 @@ namespace TelelinkAPI.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly UserManager<User> userManager;
-        private readonly SignInManager<User> signInManager;
+        private readonly UserManager<ApplicationUser> userManager;
+        private readonly SignInManager<ApplicationUser> signInManager;
 
-        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager)
+        public AccountController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
         }
 
         [HttpPost]
-        public async Task<ActionResult<string>> Register(User model)
+        public async Task<ActionResult<string>> Register([FromBody] POCOUser pocoUser)
         {
-          
-           
-            var appUser = new IdentityUser<User>
-            appUser.UserName = model.UserName;
-            appUser.Email = model.Email;
-            appUser.Owner = model.Owner;
 
-            string password = "aksD23@!ds";
-           
+            ApplicationUser appUser = new ApplicationUser
+                            {       
+                                UserName = pocoUser.UserName,
+                                Email = pocoUser.Email,
+                                Owner = pocoUser.Owner
+                            };
 
-            IdentityResult result = await userManager.CreateAsync(appUser, password);
+            IdentityResult result = await userManager.CreateAsync(appUser, pocoUser.Password);
 
-            var err = result.Errors;
-                        
-            return Ok(err);   
+            return Ok(result.Errors);   
         }
 
         [HttpGet]
-        public ActionResult<String> Login(User model)
+        public ActionResult<String> Login(ApplicationUser model)
         {
             var a = 1;
             return Ok(a);

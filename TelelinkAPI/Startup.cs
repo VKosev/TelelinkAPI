@@ -28,9 +28,10 @@ namespace TelelinkAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddIdentity<User, Role>(options =>
+            services.AddIdentity<ApplicationUser, Role>(options =>
             {
-                options.User.RequireUniqueEmail = false;
+                options.User.RequireUniqueEmail = true;
+
                 options.Password.RequiredLength = 4;
                 options.Password.RequireDigit = false;
                 options.Password.RequireNonAlphanumeric = false;
@@ -38,7 +39,7 @@ namespace TelelinkAPI
             }).AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddDbContext<ApplicationDbContext>(option => option.UseSqlServer(Configuration.GetConnectionString("MSSqlServerContext")));
-            
+
             services.AddControllers();
         }
 
@@ -55,6 +56,7 @@ namespace TelelinkAPI
             app.UseRouting();
 
             app.UseAuthentication();
+
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace TelelinkAPI.Models
 {
-    public class User : IdentityUser<int>
+    public class ApplicationUser : IdentityUser<int>
     {
        
         public Owner Owner { get; set; }
