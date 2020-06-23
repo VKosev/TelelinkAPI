@@ -34,9 +34,11 @@ namespace TelelinkAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register([FromBody] POCOUser pocoUser) // POCOUser is used to get the password from JSON.
+        public async Task<IActionResult> Register([FromBody] POCOUser pocoUser, string modelName) // POCOUser is used to get the password from JSON.
         {
 
+            //Model model = new Model { Name = modelName };
+            
             ApplicationUser appUser = new ApplicationUser
             {
                 UserName = pocoUser.UserName,
@@ -56,22 +58,58 @@ namespace TelelinkAPI.Controllers
             return Ok(a);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AddRole(ApplicationRole appRole)
+        [HttpGet]
+        public async Task<IActionResult> GenerateFirstAdmin()
         {
+            ApplicationRole adminRole = new ApplicationRole { Name = "Admin" };
+            ApplicationRole userRole = new ApplicationRole { Name = "User" };
 
-            var roleExists = await _roleManager.RoleExistsAsync(appRole.Name);
+            IdentityResult result = new IdentityResult();
 
-            if (!roleExists)
+            result = await _roleManager.CreateAsync(adminRole);
+            if (!result.Succeeded)
             {
-                IdentityResult result = await _roleManager.CreateAsync(appRole);
-                return Ok(result.Succeeded);
+                return BadRequest(result.Errors);
+            }
+
+            result = await _roleManager.CreateAsync(userRole);
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
+           
+            Owner adminOwner = new Owner() { Name = "Admin Adminov" };
+            ApplicationUser adminUser = new ApplicationUser()
+            {
+                UserName = "MasterAdmin",
+                Email = "MasterAdmin@abv.bg",
+                Owner = adminOwner,
+            };
+
+            string adminPassword = "FirstAdmin";
+
+            result = await _userManager.CreateAsync(adminUser, adminPassword);
+            if(!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
+            result = await _userManager.AddToRoleAsync(adminUser, adminRole.Name);
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
             }
             else
             {
-                return BadRequest("Failed to add Roles");
-            }
+                var response = new
+                {
+                    StatusCode = 200,
+                    Message = "First user as admin added successfully.",
+                    AdminUsername = "MasterAdmin",
+                    Password = "FirstAdmin"
+                };
 
+                return Ok(response);
+            }
         }
     }
 }
