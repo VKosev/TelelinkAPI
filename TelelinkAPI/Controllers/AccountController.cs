@@ -4,16 +4,18 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using TelelinkAPI.Data;
 using TelelinkAPI.Models;
 using TelelinkAPI.POCOs;
+using TelelinkAPI.Services;
 
 namespace TelelinkAPI.Controllers
 {
-    [Route("{api}/{controller}/{action}")]
+    [Route("{api}/{controller = Account}/{action}")]
     [ApiController]
     public class AccountController : ControllerBase
     {
@@ -21,20 +23,24 @@ namespace TelelinkAPI.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly ApplicationDbContext _context;
+        private readonly JwtAuthenticationService _jwtAuthenticationService;
 
         public AccountController(UserManager<ApplicationUser> userManager,
                                  SignInManager<ApplicationUser> signInManager,
                                  RoleManager<ApplicationRole> roleManager,
-                                 ApplicationDbContext context)
+                                 ApplicationDbContext context,
+                                 JwtAuthenticationService jwtAuthenticationService)
         {
             this._userManager = userManager;
             this._signInManager = signInManager;
             this._roleManager = roleManager;
             this._context = context;
+            this._jwtAuthenticationService = jwtAuthenticationService;
         }
-
+    
         [HttpPost]
-        public async Task<IActionResult> Register([FromBody] POCOUser pocoUser, string modelName) // POCOUser is used to get the password from JSON.
+        [AllowAnonymous]
+        public async Task<IActionResult> Register([FromBody] POCOUser pocoUser) // POCOUser is used to get the password from JSON.
         {
 
             //Model model = new Model { Name = modelName };
@@ -51,14 +57,26 @@ namespace TelelinkAPI.Controllers
             return Ok(result.Errors);
         }
 
-        [HttpGet]
-        public ActionResult<String> Login(ApplicationUser model)
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> Login([FromBody] POCOUser pocoUser)
         {
-            var a = 1;
-            return Ok(a);
+            IActionResult response = Unauthorized();
+
+            var appUser = await _userManager.FindByNameAsync(pocoUser.UserName);
+            
+           
+            if ( await _userManager.CheckPasswordAsync(appUser, pocoUser.Password))
+            {
+                var tokenString = _jwtAuthenticationService.GenerateJsonWebToken(appUser);
+                return Ok(new { token = tokenString });
+            }
+
+            return response;
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GenerateFirstAdmin()
         {
             ApplicationRole adminRole = new ApplicationRole { Name = "Admin" };
@@ -100,7 +118,8 @@ namespace TelelinkAPI.Controllers
             }
             else
             {
-                var response = new
+
+                var responseOBJ = new
                 {
                     StatusCode = 200,
                     Message = "First user as admin added successfully.",
@@ -108,7 +127,7 @@ namespace TelelinkAPI.Controllers
                     Password = "FirstAdmin"
                 };
 
-                return Ok(response);
+                return Ok(responseOBJ);
             }
         }
     }
