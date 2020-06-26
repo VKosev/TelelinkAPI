@@ -26,12 +26,12 @@ namespace TelelinkAPI.Data
 
             modelBuilder.Entity<OwnerModel>()
                 .HasOne(om => om.Owner)
-                .WithMany(m => m.Models)
+                .WithMany(m => m.OwnerModels)
                 .HasForeignKey(om => om.OwnerId);
 
             modelBuilder.Entity<OwnerModel>()
                 .HasOne(om => om.Model)
-                .WithMany(o => o.Owners)
+                .WithMany(o => o.OwnerModels)
                 .HasForeignKey(om => om.ModelId);
 
             // Make Owner & Model name fields unique
@@ -46,8 +46,8 @@ namespace TelelinkAPI.Data
             // Add one to one realtioship between IdentityUsers table and Owner table.
             modelBuilder.Entity<ApplicationUser>()
                 .HasOne(o => o.Owner)
-                .WithOne(u => u.user)
-                .HasForeignKey<Owner>(o => o.userId);
+                .WithOne(u => u.User)
+                .HasForeignKey<Owner>(o => o.UserId);
 
             base.OnModelCreating(modelBuilder); /* Required to sucessfully create the Identity tables, otherwise this error shows:
             "The entity type 'IdentityUserLogin<int>' requires a primary key to be defined. If you intended to use a keyless entity type call 'HasNoKey()'." */

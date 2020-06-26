@@ -174,14 +174,14 @@ namespace TelelinkAPI.Migrations
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(maxLength: 450, nullable: false),
-                    userId = table.Column<int>(nullable: false)
+                    UserId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Owners", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Owners_AspNetUsers_userId",
-                        column: x => x.userId,
+                        name: "FK_Owners_AspNetUsers_UserId",
+                        column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -193,7 +193,6 @@ namespace TelelinkAPI.Migrations
                 {
                     OwnerId = table.Column<int>(nullable: false),
                     ModelId = table.Column<int>(nullable: false),
-                    Id = table.Column<int>(nullable: false),
                     Date = table.Column<DateTime>(nullable: false),
                     Description = table.Column<string>(nullable: true)
                 },
@@ -271,9 +270,9 @@ namespace TelelinkAPI.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Owners_userId",
+                name: "IX_Owners_UserId",
                 table: "Owners",
-                column: "userId",
+                column: "UserId",
                 unique: true);
         }
 

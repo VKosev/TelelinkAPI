@@ -41,10 +41,7 @@ namespace TelelinkAPI.Controllers
         [HttpPost]
         [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] POCOUser pocoUser) // POCOUser is used to get the password from JSON.
-        {
-
-            //Model model = new Model { Name = modelName };
-            
+        { 
             ApplicationUser appUser = new ApplicationUser
             {
                 UserName = pocoUser.UserName,
@@ -52,9 +49,21 @@ namespace TelelinkAPI.Controllers
                 Owner = pocoUser.Owner
             };
 
+            // Create User
             IdentityResult result = await _userManager.CreateAsync(appUser, pocoUser.Password);
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
 
-            return Ok(result.Errors);
+            // Asign role to the new User
+            result = await _userManager.AddToRoleAsync(appUser,"User");
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors);
+            }
+
+            return (Ok(appUser));          
         }
 
         [HttpPost]

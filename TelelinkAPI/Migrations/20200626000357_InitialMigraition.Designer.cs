@@ -10,7 +10,7 @@ using TelelinkAPI.Data;
 namespace TelelinkAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20200620195304_InitialMigraition")]
+    [Migration("20200626000357_InitialMigraition")]
     partial class InitialMigraition
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -122,77 +122,7 @@ namespace TelelinkAPI.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("TelelinkAPI.Models.Model", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)")
-                        .HasMaxLength(450);
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("Models");
-                });
-
-            modelBuilder.Entity("TelelinkAPI.Models.Owner", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)")
-                        .HasMaxLength(450);
-
-                    b.Property<int>("userId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.HasIndex("userId")
-                        .IsUnique();
-
-                    b.ToTable("Owners");
-                });
-
-            modelBuilder.Entity("TelelinkAPI.Models.OwnerModel", b =>
-                {
-                    b.Property<int>("OwnerId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ModelId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.HasKey("OwnerId", "ModelId");
-
-                    b.HasIndex("ModelId");
-
-                    b.ToTable("OwnerModels");
-                });
-
-            modelBuilder.Entity("TelelinkAPI.Models.Role", b =>
+            modelBuilder.Entity("TelelinkAPI.Models.ApplicationRole", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -221,7 +151,7 @@ namespace TelelinkAPI.Migrations
                     b.ToTable("AspNetRoles");
                 });
 
-            modelBuilder.Entity("TelelinkAPI.Models.User", b =>
+            modelBuilder.Entity("TelelinkAPI.Models.ApplicationUser", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -288,9 +218,76 @@ namespace TelelinkAPI.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
+            modelBuilder.Entity("TelelinkAPI.Models.Model", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)")
+                        .HasMaxLength(450);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Models");
+                });
+
+            modelBuilder.Entity("TelelinkAPI.Models.Owner", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)")
+                        .HasMaxLength(450);
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("Owners");
+                });
+
+            modelBuilder.Entity("TelelinkAPI.Models.OwnerModel", b =>
+                {
+                    b.Property<int>("OwnerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ModelId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("OwnerId", "ModelId");
+
+                    b.HasIndex("ModelId");
+
+                    b.ToTable("OwnerModels");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
-                    b.HasOne("TelelinkAPI.Models.Role", null)
+                    b.HasOne("TelelinkAPI.Models.ApplicationRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -299,7 +296,7 @@ namespace TelelinkAPI.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
-                    b.HasOne("TelelinkAPI.Models.User", null)
+                    b.HasOne("TelelinkAPI.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -308,7 +305,7 @@ namespace TelelinkAPI.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
-                    b.HasOne("TelelinkAPI.Models.User", null)
+                    b.HasOne("TelelinkAPI.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -317,13 +314,13 @@ namespace TelelinkAPI.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
                 {
-                    b.HasOne("TelelinkAPI.Models.Role", null)
+                    b.HasOne("TelelinkAPI.Models.ApplicationRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TelelinkAPI.Models.User", null)
+                    b.HasOne("TelelinkAPI.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -332,7 +329,7 @@ namespace TelelinkAPI.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
-                    b.HasOne("TelelinkAPI.Models.User", null)
+                    b.HasOne("TelelinkAPI.Models.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -341,9 +338,9 @@ namespace TelelinkAPI.Migrations
 
             modelBuilder.Entity("TelelinkAPI.Models.Owner", b =>
                 {
-                    b.HasOne("TelelinkAPI.Models.User", "user")
+                    b.HasOne("TelelinkAPI.Models.ApplicationUser", "User")
                         .WithOne("Owner")
-                        .HasForeignKey("TelelinkAPI.Models.Owner", "userId")
+                        .HasForeignKey("TelelinkAPI.Models.Owner", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -351,13 +348,13 @@ namespace TelelinkAPI.Migrations
             modelBuilder.Entity("TelelinkAPI.Models.OwnerModel", b =>
                 {
                     b.HasOne("TelelinkAPI.Models.Model", "Model")
-                        .WithMany("Owners")
+                        .WithMany("OwnerModels")
                         .HasForeignKey("ModelId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("TelelinkAPI.Models.Owner", "Owner")
-                        .WithMany("Models")
+                        .WithMany("OwnerModels")
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
