@@ -40,7 +40,7 @@ namespace TelelinkAPI.Controllers
     
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IActionResult> Register([FromBody] POCOUser pocoUser) // POCOUser is used to get the password from JSON.
+        public async Task<IActionResult> Register([FromBody] UserWithPasswordPoco pocoUser) // POCOUser is used to get the password from JSON.
         { 
             ApplicationUser appUser = new ApplicationUser
             {
@@ -68,7 +68,7 @@ namespace TelelinkAPI.Controllers
 
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IActionResult> Login([FromBody] POCOUser pocoUser)
+        public async Task<IActionResult> Login([FromBody] UserWithPasswordPoco pocoUser)
         {
             IActionResult response = Unauthorized();
 

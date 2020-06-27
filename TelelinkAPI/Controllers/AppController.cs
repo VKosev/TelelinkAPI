@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -47,35 +48,54 @@ namespace TelelinkAPI.Controllers
         [AllowAnonymous]
         public IActionResult AllData()
         {
-            var OwnerModelsCollection = _context.OwnerModels.Include(m => m.Model).Include(o => o.Owner).ThenInclude(u => u.User);
+            var allData = (from om in _context.OwnerModels
+                            join o in _context.Owners on om.OwnerId equals o.Id
+                            join m in _context.Models on om.ModelId equals m.Id
+                            join u in _context.Users on o.UserId equals u.Id
+                            orderby o.Name descending
+                            select new {ownerModel = om, ownerName = o.Name, modelName = m.Name, userName = u.UserName, email = u.Email });
 
-            return Ok(OwnerModelsCollection);
+            /* List<AllUsersDataPoco> allUsersData = new List<AllUsersDataPoco>();
+
+            foreach(var item in allData)
+            {
+                AllUsersDataPoco userData = new AllUsersDataPoco
+                {
+                    OwnerModels = item.ownerModel,
+                    OwnerName = item.ownerName,
+                    ModelName = item.modelName,
+                    UserName = item.userName,
+                    Email = item.email
+                };
+                allUsersData.Add(userData);
+            } */
+
+
+            return Ok(allData);
             
         }
         [HttpGet]
         [AllowAnonymous]
         public IActionResult UserData(string username)  
         {
-            DataUserPoco dataUserPoco = new DataUserPoco();
+            UserDataPoco UserDataPoco = new UserDataPoco();
            
-
             var dbQueryData = (from u in _context.Users
                                join o in _context.Owners on u.Id equals o.UserId
                                join om in _context.OwnerModels on o.Id equals om.OwnerId
                                join m in _context.Models on om.ModelId equals m.Id
                                where u.UserName == username
-                               select new { username = u.UserName, owner = o.Name, models = m.Name }).Distinct().ToList();
+                               select new { username = u.UserName, email = u.Email, owner = o.Name, models = m.Name }).Distinct().ToList();
 
             foreach(var data in dbQueryData)
             {
-                dataUserPoco.Username = data.username;
-                dataUserPoco.OwnerName = data.owner;
-                dataUserPoco.ModelsNames.Add(data.models);
+                UserDataPoco.Username = data.username;
+                UserDataPoco.OwnerName = data.owner;
+                UserDataPoco.Email = data.email;
+                UserDataPoco.ModelsNames.Add(data.models);
             }
-
-           
-            return Ok(dataUserPoco);
-
+            
+            return Ok(UserDataPoco);
         }
     }
 }
