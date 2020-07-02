@@ -15,5 +15,7 @@ namespace TelelinkAPI.Models
         public string Name { get; set; }
 
         public ICollection<OwnerModel> OwnerModels { get; set; }
+
+        
     }
 }

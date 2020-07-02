@@ -10,5 +10,6 @@ namespace TelelinkAPI.Models
     public class ApplicationUser : IdentityUser<int>
     {
         public Owner Owner { get; set; }
+        
     }
 }

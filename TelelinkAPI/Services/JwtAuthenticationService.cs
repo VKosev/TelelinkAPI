@@ -46,15 +46,23 @@ namespace TelelinkAPI.Services
             {
                 claims.Add(new Claim(ClaimTypes.Role, roleName));
             }
-          
-        
+
+
             var token = new JwtSecurityToken(
-                new JwtHeader(
-                    new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:SecretKey"])),
-                    SecurityAlgorithms.HmacSha256)),
-                new JwtPayload(claims));
-                    
+                _config["Jwt:Issuer"],
+                _config["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.Now.AddDays(5),
+                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:SecretKey"])),
+                SecurityAlgorithms.HmacSha256));
+
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+        public string GetClaimForName( string token)
+        {
+            var tokenHandler = new JwtSecurityToken(jwtEncodedString: token);
+            string userName = tokenHandler.Claims.First(c => c.Type == ClaimTypes.Name).Value.ToString();
+            return userName;
         }
     }
 }

@@ -6,8 +6,9 @@ using TelelinkAPI.Models;
 
 namespace TelelinkAPI.POCOs
 {
-    public class UserWithPasswordPoco : ApplicationUser
+    public class RoleAndPasswordUserPoco : ApplicationUser
     {
         public string Password { get; set; }
+        public string Role { get; set; }
     }
 }

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using TelelinkAPI.Data;
 using TelelinkAPI.Models;
 using TelelinkAPI.POCOs;
@@ -37,107 +38,121 @@ namespace TelelinkAPI.Controllers
             this._context = context;
             this._jwtAuthenticationService = jwtAuthenticationService;
         }
-    
+
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IActionResult> Register([FromBody] UserWithPasswordPoco pocoUser) // POCOUser is used to get the password from JSON.
-        { 
-            ApplicationUser appUser = new ApplicationUser
+        public async Task<IActionResult> Register([FromBody] RoleAndPasswordUserPoco roleAndPasswordUserPoco) // POCOUser is used to get the password and role from JSON.
+        {
+            Error error = new Error();
+
+            ApplicationUser applicationUser = new ApplicationUser
             {
-                UserName = pocoUser.UserName,
-                Email = pocoUser.Email,
-                Owner = pocoUser.Owner
+                UserName = roleAndPasswordUserPoco.UserName,
+                Email = roleAndPasswordUserPoco.Email,
+                Owner = roleAndPasswordUserPoco.Owner
             };
 
             // Create User
-            IdentityResult result = await _userManager.CreateAsync(appUser, pocoUser.Password);
+            IdentityResult result = await _userManager.CreateAsync(applicationUser, roleAndPasswordUserPoco.Password);
             if (!result.Succeeded)
             {
-                return BadRequest(result.Errors);
+                return BadRequest(error.Message = "User already exist");
             }
 
             // Asign role to the new User
-            result = await _userManager.AddToRoleAsync(appUser,"User");
+            result = await _userManager.AddToRoleAsync(applicationUser, roleAndPasswordUserPoco.Role);
             if (!result.Succeeded)
             {
-                return BadRequest(result.Errors);
+                _context.Users.Remove(applicationUser);
+                await _context.SaveChangesAsync();
+                return BadRequest(error.Message = "Failed to assign role to use");
             }
 
-            return (Ok(appUser));          
+            return (Ok(applicationUser));
         }
-
+        
         [HttpPost]
         [AllowAnonymous]
-        public async Task<IActionResult> Login([FromBody] UserWithPasswordPoco pocoUser)
+        public async Task<IActionResult> Login([FromBody] RoleAndPasswordUserPoco roleAndPasswordUserPoco)
         {
-            IActionResult response = Unauthorized();
+            Error error = new Error();
 
-            var appUser = await _userManager.FindByNameAsync(pocoUser.UserName);
-            
-           
-            if ( await _userManager.CheckPasswordAsync(appUser, pocoUser.Password))
+            var appUser = await _userManager.FindByNameAsync(roleAndPasswordUserPoco.UserName);
+
+            if (await _userManager.CheckPasswordAsync(appUser, roleAndPasswordUserPoco.Password))
             {
                 var tokenString = _jwtAuthenticationService.GenerateJsonWebToken(appUser);
+                
                 return Ok(new { token = tokenString });
             }
-
-            return response;
+            
+            return BadRequest(error.Message = "Password or Username incorrect.");          
         }
+
 
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> GenerateFirstAdmin()
         {
+            Error error = new Error();
+
             ApplicationRole adminRole = new ApplicationRole { Name = "Admin" };
             ApplicationRole userRole = new ApplicationRole { Name = "User" };
 
-            IdentityResult result = new IdentityResult();
-
-            result = await _roleManager.CreateAsync(adminRole);
-            if (!result.Succeeded)
-            {
-                return BadRequest(result.Errors);
-            }
-
-            result = await _roleManager.CreateAsync(userRole);
-            if (!result.Succeeded)
-            {
-                return BadRequest(result.Errors);
-            }
-           
             Owner adminOwner = new Owner() { Name = "Admin Adminov" };
-            ApplicationUser adminUser = new ApplicationUser()
+
+            ApplicationUser applicationUser = new ApplicationUser()
             {
                 UserName = "MasterAdmin",
                 Email = "MasterAdmin@abv.bg",
                 Owner = adminOwner,
             };
-
             string adminPassword = "FirstAdmin";
 
-            result = await _userManager.CreateAsync(adminUser, adminPassword);
-            if(!result.Succeeded)
+            if (await _userManager.CheckPasswordAsync(applicationUser, adminPassword))
             {
-                return BadRequest(result.Errors);
+                
+                return BadRequest(error.Message = "First admin is already created");
             }
-            result = await _userManager.AddToRoleAsync(adminUser, adminRole.Name);
+
+            IdentityResult result = new IdentityResult();
+            result = await _roleManager.CreateAsync(adminRole);
+
             if (!result.Succeeded)
             {
-                return BadRequest(result.Errors);
+                return BadRequest(error.Message = "There was a problem in creating admin role.");
+            }
+
+            result = await _roleManager.CreateAsync(userRole);
+            if (!result.Succeeded)
+            {
+                return BadRequest(error.Message = "There was a problem in creating user role.");
+            }
+
+            result = await _userManager.CreateAsync(applicationUser, adminPassword);
+            if (!result.Succeeded)
+            {
+                return BadRequest(error.Message = "There was a problem in creating the first admin user");
+            }
+
+            result = await _userManager.AddToRoleAsync(applicationUser, adminRole.Name);
+            if (!result.Succeeded)
+            {
+                return BadRequest(error.Message = "There was a problem in asigning MasterAdmin user to role admin");
             }
             else
             {
-
-                var responseOBJ = new
-                {
-                    StatusCode = 200,
+                var responseObject = new
+                {                   
                     Message = "First user as admin added successfully.",
-                    AdminUsername = "MasterAdmin",
+                    UserName = "MasterAdmin",
                     Password = "FirstAdmin"
                 };
 
-                return Ok(responseOBJ);
+                return Ok(responseObject);
             }
         }
+
+
     }
 }

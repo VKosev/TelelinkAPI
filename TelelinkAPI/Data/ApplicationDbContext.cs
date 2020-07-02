@@ -14,6 +14,7 @@ namespace TelelinkAPI.Data
 
         public DbSet<Model> Models { get; set; }
         public DbSet<OwnerModel> OwnerModels { get; set; }
+        public DbSet<PendingRegistration> PendingRegistrations { get; set; }
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
         {
 
@@ -21,9 +22,7 @@ namespace TelelinkAPI.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             // Add many to many realtionship in the OwnerModel bridge table.
-            modelBuilder.Entity<OwnerModel>()
-                .HasKey(om => new { om.OwnerId, om.ModelId });
-
+          
             modelBuilder.Entity<OwnerModel>()
                 .HasOne(om => om.Owner)
                 .WithMany(m => m.OwnerModels)
@@ -41,6 +40,10 @@ namespace TelelinkAPI.Data
 
             modelBuilder.Entity<Model>()
                 .HasIndex(m => m.Name)
+                .IsUnique();
+
+            modelBuilder.Entity<PendingRegistration>()
+                .HasIndex(pr => pr.UserName)
                 .IsUnique();
 
             // Add one to one realtioship between IdentityUsers table and Owner table.

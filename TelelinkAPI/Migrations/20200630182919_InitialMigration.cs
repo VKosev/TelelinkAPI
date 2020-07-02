@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace TelelinkAPI.Migrations
 {
-    public partial class InitialMigraition : Migration
+    public partial class InitialMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -59,6 +59,23 @@ namespace TelelinkAPI.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Models", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PendingRegistrations",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserName = table.Column<string>(nullable: true),
+                    EncriptedPassword = table.Column<byte[]>(type: "varbinary(800)", nullable: true),
+                    Email = table.Column<string>(nullable: true),
+                    OwnerName = table.Column<string>(nullable: true),
+                    Role = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PendingRegistrations", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -191,6 +208,8 @@ namespace TelelinkAPI.Migrations
                 name: "OwnerModels",
                 columns: table => new
                 {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     OwnerId = table.Column<int>(nullable: false),
                     ModelId = table.Column<int>(nullable: false),
                     Date = table.Column<DateTime>(nullable: false),
@@ -198,7 +217,7 @@ namespace TelelinkAPI.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OwnerModels", x => new { x.OwnerId, x.ModelId });
+                    table.PrimaryKey("PK_OwnerModels", x => x.Id);
                     table.ForeignKey(
                         name: "FK_OwnerModels_Models_ModelId",
                         column: x => x.ModelId,
@@ -264,6 +283,11 @@ namespace TelelinkAPI.Migrations
                 column: "ModelId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_OwnerModels_OwnerId",
+                table: "OwnerModels",
+                column: "OwnerId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Owners_Name",
                 table: "Owners",
                 column: "Name",
@@ -274,6 +298,13 @@ namespace TelelinkAPI.Migrations
                 table: "Owners",
                 column: "UserId",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PendingRegistrations_UserName",
+                table: "PendingRegistrations",
+                column: "UserName",
+                unique: true,
+                filter: "[UserName] IS NOT NULL");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -295,6 +326,9 @@ namespace TelelinkAPI.Migrations
 
             migrationBuilder.DropTable(
                 name: "OwnerModels");
+
+            migrationBuilder.DropTable(
+                name: "PendingRegistrations");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
